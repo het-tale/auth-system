@@ -18,7 +18,7 @@ class DatabaseConnection:
             logger.error("Error while creating connection pool", e)
             raise
 
-    async def get_connection(self):
+    async def get_connection(self) -> asyncpg.Pool:
         if self.connection_pool is None:
             logger.error("The connection pool is NULL")
             raise
