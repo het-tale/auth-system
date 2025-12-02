@@ -32,7 +32,7 @@ class AuthService:
         insert_query = """
             INSERT INTO users (username, email, hashed_password, first_name, last_name, is_verified, is_active, created_at, updated_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING email, username, first_name, last_name
+            RETURNING user_id, email, username, first_name, last_name
             """
         async with db_pool.acquire() as conn:
             result = await conn.fetchrow(

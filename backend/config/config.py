@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     TOKEN_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
+    VERIFICATION_TOKEN_EXPIRE_HOURS: int
 
 
 settings = Settings()

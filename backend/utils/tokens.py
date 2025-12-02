@@ -1,8 +1,9 @@
 from datetime import timedelta, datetime, timezone
+import secrets
 
 from fastapi import HTTPException, status
 import jwt
-from backend.config.config import settings
+from config.config import settings
 import uuid
 import hashlib
 
@@ -50,3 +51,7 @@ def decode_token(token: str):
 
 def get_hash_token(token: str):
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def generate_verification_token():
+    return secrets.token_urlsafe(32)
