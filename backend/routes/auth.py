@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from fastapi.responses import JSONResponse
 
+from schemas.email import VerificationEmail
 from schemas.user import User, UserCreate
 from database.connection_db import connection
 import asyncpg
@@ -12,7 +15,9 @@ auth_route = APIRouter(tags=["Authentication"])
 
 @auth_route.post("/register", response_model=User)
 async def register(
-    user: UserCreate, db_pool: asyncpg.Pool = Depends(connection.get_connection)
+    user: UserCreate,
+    background_task: BackgroundTasks,
+    db_pool: asyncpg.Pool = Depends(connection.get_connection),
 ):
     if user.confirm_password != user.password:
         raise HTTPException(
@@ -33,9 +38,23 @@ async def register(
         email_verif_token = await email_verification.generate_and_save_token(
             str(user_out.get("user_id", 0)), db_pool
         )
+        email_data = VerificationEmail(
+            email=[user_out.get("email")],
+            body={
+                "receiver": user_out.get("username"),
+                "app_name": "Touch Somebody",
+                "verification_link": f"http://localhost:8000/verify_email?token={email_verif_token}",
+            },
+        )
+        await email_verification.send_email(email_data, background_task)
         return User(**user_out)
     else:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to Register user",
         )
+
+
+@auth_route.get("/verify_email")
+async def verify_email(token: Annotated[str, Query()]):
+    return JSONResponse({"token": token})

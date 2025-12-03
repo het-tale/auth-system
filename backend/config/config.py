@@ -12,6 +12,15 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
     VERIFICATION_TOKEN_EXPIRE_HOURS: int
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_FROM_NAME: str
+    MAIL_TLS: bool
+    MAIL_SSL: bool
+    USE_CREDENTIALS: bool
 
 
 settings = Settings()

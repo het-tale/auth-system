@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>Email Verification</title>
+    <style>
+        .verification-btn {
+            background-color: #f04299;
+            color: #ffffff;
+        }
+        a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Verify your email address to complete registration</h1>
+      <p>Hi {{receiver}}</p>
+      <p>
+        Thanks for your interest in joining {{app_name}} To complete your
+        registration, we need you to verify your email address.
+      </p>
+      <button class="verification-btn"><a href="{{verification_link}}">Verify Email</a></button>
+    </main>
+  </body>
+</html>
