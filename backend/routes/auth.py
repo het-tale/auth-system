@@ -56,5 +56,9 @@ async def register(
 
 
 @auth_route.get("/verify_email")
-async def verify_email(token: Annotated[str, Query()]):
-    return JSONResponse({"token": token})
+async def verify_email(
+    token: Annotated[str, Query()],
+    db_pool: asyncpg.Pool = Depends(connection.get_connection),
+):
+    result = await email_verification.verify_email_token(token, db_pool)
+    return {"Result": result}

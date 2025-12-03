@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr
 class Email(BaseModel):
     user_id: str
     token_hash: str
+    is_used: bool
     created_at: datetime
     expires_at: datetime
 
