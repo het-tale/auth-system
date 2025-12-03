@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from fastapi.responses import JSONResponse
 
 
 from schemas.email import VerificationEmail
@@ -76,7 +77,37 @@ async def authenticate_user(
         )
     try:
         logged_user = await auth.login_user(user, db_pool)
-        return User(**logged_user)
+        user_id = str(logged_user.get("user_id"))
+        tokens = await auth.generate_and_store_tokens(user, user_id, db_pool)
+        res = JSONResponse(
+            content={
+                "user_id": user_id,
+                "email": logged_user.get("email"),
+                "username": logged_user.get("username"),
+                "first_name": logged_user.get("first_name"),
+                "last_name": logged_user.get("last_name"),
+                "access_token": tokens.get("access_token"),
+            }
+        )
+        res.set_cookie(
+            key="access_token",
+            value=tokens.get("access_token"),
+            httponly=True,
+            samesite="Lax",
+            secure=True,
+            max_age=15*60,
+            path="/",
+        )
+        res.set_cookie(
+            key="refresh_token",
+            value=tokens.get("refresh_token"),
+            httponly=True,
+            samesite="Lax",
+            secure=True,
+            max_age=7*24*60*60,
+            path="/",
+        )
+        return res
     except HTTPException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

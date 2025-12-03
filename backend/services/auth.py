@@ -1,9 +1,11 @@
 from fastapi import Depends, HTTPException, status
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from schemas.user import UserCreate, UserInDB, UserLogin
+from utils.tokens import generate_token, get_hash_token
+from schemas.user import User, UserCreate, UserInDB, UserLogin
 from database.connection_db import connection
 from utils.password import get_password_hash, verify_password
+from config.config import settings
 import asyncpg
 
 
@@ -80,6 +82,32 @@ class AuthService:
                 detail="This account is unverified. Verify your email",
             )
         return result
+
+    async def generate_and_store_tokens(
+        self,
+        user: User,
+        user_id: str,
+        db_pool: asyncpg.Pool = Depends(connection.get_connection),
+    ):
+        access_token = generate_token(
+            user.model_dump(), timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        )
+        refresh_token = generate_token(
+            user.model_dump(),
+            timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+            token_type="refresh",
+        )
+        hashed_refresh = get_hash_token(refresh_token)
+        refresh_token_query = """
+        INSERT INTO refresh_tokens (user_id, token, expires_at, created_at)
+        VALUES ($1, $2, $3, $4)
+        """
+        expires_at = datetime.now() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        async with db_pool.acquire() as conn:
+            await conn.fetchrow(
+                refresh_token_query, user_id, hashed_refresh, expires_at, datetime.now()
+            )
+        return {"access_token": access_token, "refresh_token": refresh_token}
 
 
 auth = AuthService()
