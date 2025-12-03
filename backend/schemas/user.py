@@ -1,6 +1,15 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, SecretStr, field_validator
 import re
+
+
+class UserLogin(BaseModel):
+    username: Optional[str] = Field(
+        min_length=4, max_length=20, pattern=r"^[a-zA-Z0-9]+$", default=None
+    )
+    email: EmailStr | None = None
+    password: str
 
 
 class User(BaseModel):
@@ -21,7 +30,7 @@ class UserCreate(User):
         if len(password_value) < 8:
             raise ValueError("Password must contain at least 8 characters")
         pattern = re.compile(
-            "^(?=(.*[a-z]){2,})(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!\"])([a-zA-Z\d@#$%^&+=!]+)$"
+            '^(?=(.*[a-z]){2,})(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!"])([a-zA-Z\d@#$%^&+=!]+)$'
         )
         if not re.search(pattern, password_value):
             raise ValueError(

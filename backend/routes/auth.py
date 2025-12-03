@@ -1,9 +1,9 @@
 from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
-from fastapi.responses import JSONResponse
+
 
 from schemas.email import VerificationEmail
-from schemas.user import User, UserCreate
+from schemas.user import User, UserCreate, UserLogin
 from database.connection_db import connection
 import asyncpg
 from services.auth import auth
@@ -62,3 +62,23 @@ async def verify_email(
 ):
     result = await email_verification.verify_email_token(token, db_pool)
     return {"Result": result}
+
+
+@auth_route.post("/login", response_model=User)
+async def authenticate_user(
+    user: UserLogin,
+    db_pool: asyncpg.Pool = Depends(connection.get_connection),
+):
+    if user.email and user.username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please provide either username or email not both",
+        )
+    try:
+        logged_user = await auth.login_user(user, db_pool)
+        return User(**logged_user)
+    except HTTPException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
