@@ -18,7 +18,8 @@ class AuthService:
         user.email = user.email.lower()
 
         user.username = user.username.lower()
-        hashed_pwd = get_password_hash(str(user.password))
+        plain_password = user.password.get_secret_value()
+        hashed_pwd = get_password_hash(plain_password)
         user_db = UserInDB(
             username=user.username,
             email=user.email,
@@ -85,15 +86,15 @@ class AuthService:
 
     async def generate_and_store_tokens(
         self,
-        user: User,
         user_id: str,
         db_pool: asyncpg.Pool = Depends(connection.get_connection),
     ):
+        user_data = {"user_id": user_id}
         access_token = generate_token(
-            user.model_dump(), timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            user_data, timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         )
         refresh_token = generate_token(
-            user.model_dump(),
+            user_data,
             timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
             token_type="refresh",
         )
