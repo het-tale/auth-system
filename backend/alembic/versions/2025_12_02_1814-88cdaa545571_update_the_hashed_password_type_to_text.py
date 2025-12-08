@@ -22,7 +22,7 @@ def upgrade() -> None:
     # alter users table
     op.execute("""
                ALTER TABLE users
-               ALTER COLUMN hashed_password TYPE TEXT NOT NULL
+               ALTER COLUMN hashed_password TYPE TEXT
                """)
 
 
