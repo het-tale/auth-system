@@ -1,0 +1,27 @@
+{
+  "name": "auth-system",
+  "version": "1.0.0",
+  "description": "This repository implements an end to end authentication system",
+  "main": "commitlint.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/het-tale/auth-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/het-tale/auth-system/issues"
+  },
+  "homepage": "https://github.com/het-tale/auth-system#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^20.3.0",
+    "@commitlint/config-conventional": "^20.3.0",
+    "husky": "^9.1.7"
+  }
+}
